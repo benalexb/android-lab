@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -12,12 +13,15 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,7 +52,10 @@ fun NameSection(
     val image = painterResource(picture)
     val imageModifier = Modifier
         .size(150.dp)
-        .border(BorderStroke(1.dp, Color.Black))
+        .fillMaxSize()
+        .padding(bottom = 16.dp)
+        .border(BorderStroke(2.dp, Color.Gray))
+
     Row {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -58,14 +65,17 @@ fun NameSection(
             Image(
                 painter = image,
                 contentDescription = null,
-                modifier = imageModifier
+                modifier = imageModifier,
+                contentScale = ContentScale.Crop
             )
             Text(
                 text = name,
                 fontSize = 34.sp,
-                fontWeight = FontWeight.Light
+                fontWeight = FontWeight.Light,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 10.dp)
             )
-            Text(text = title)
+            Text(text = title, color = Color.White)
         }
     }
 }
@@ -77,17 +87,19 @@ fun ContactSection(
     emailAddress: String
 ) {
     Row(
-        modifier = Modifier
-            .padding(bottom = 10.dp)
+        modifier = Modifier.padding(bottom = 32.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            ContactRowSeparator()
             ContactRow(value = phoneNumber, icon = Icons.Rounded.Phone)
-            ContactRow(value = socialMedia, icon = Icons.Rounded.Phone)
-            ContactRow(value = emailAddress, icon = Icons.Rounded.Phone)
+            ContactRowSeparator()
+            ContactRow(value = socialMedia, icon = Icons.Rounded.Share)
+            ContactRowSeparator()
+            ContactRow(value = emailAddress, icon = Icons.Rounded.Email)
         }
     }
 }
@@ -98,25 +110,44 @@ fun ContactRow(
     icon: ImageVector
 ) {
     Row(
+        horizontalArrangement = Arrangement.Start,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 40.dp, vertical = 4.dp)
     ) {
-        Icon(icon, contentDescription = null)
-        Text(text = value)
+        Icon(
+            icon,
+            tint = Color.White,
+            contentDescription = null,
+            modifier = Modifier.padding(end = 24.dp)
+        )
+        Text(text = value, color = Color.White)
     }
 }
 
 @Composable
 fun BusinessCard() {
-    NameSection(
-        name = "Benjamin Barreto",
-        title = "Software Engineer",
-        picture = R.drawable.ben
-    )
-    ContactSection(
-        phoneNumber = "+31 6 999-12-1234",
-        socialMedia = "@benalexb",
-        emailAddress = "benji@barreto.com"
+    Box(modifier = Modifier.background(Color.Black)) {
+        NameSection(
+            name = "Benjamin Barreto",
+            title = "Software Engineer",
+            picture = R.drawable.ben
+        )
+        ContactSection(
+            phoneNumber = "+31 6 999-12-1234",
+            socialMedia = "@benalexb",
+            emailAddress = "benji@barreto.com"
+        )
+    }
+}
+
+@Composable
+fun ContactRowSeparator() {
+    Spacer(
+        Modifier
+            .height(1.dp)
+            .fillMaxWidth()
+            .background(Color.White)
     )
 }
 
