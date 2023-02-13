@@ -47,9 +47,8 @@ fun TicTacToeGame() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TicTacToeLayout(modifier: Modifier = Modifier){
-    var gameTurn by remember {
-        mutableStateOf("X")
-    }
+    var hasWinner by remember { mutableStateOf(false) }
+    var gameTurn by remember { mutableStateOf("X")}
     var gameState = remember {
         mutableStateListOf<String>(
             "", "", "",
@@ -57,6 +56,8 @@ fun TicTacToeLayout(modifier: Modifier = Modifier){
             "", "", "",
         )
     }
+    // TODO: Use this later on in order to highlight the winning row in red.
+    var winPosition:  List<Boolean>? = remember { mutableStateListOf<Boolean>() }
 
     Column(
         modifier = modifier,
@@ -81,9 +82,21 @@ fun TicTacToeLayout(modifier: Modifier = Modifier){
                             .fillMaxWidth(),
                         elevation = 8.dp,
                         onClick = {
-                            if (gameState[index] == "") {
+                            if (!hasWinner && gameState[index] == "") {
                                 gameState[index] = gameTurn
-                                gameTurn = if (gameTurn == "X") "O" else "X"
+
+                                // Must check winner before changing the turn
+                                hasWinner = hasWinner(gameState, gameTurn)
+
+                                // TEST
+                                if (hasWinner) {
+                                    println(getWinPosition(gameState, gameTurn))
+                                }
+
+                                if (!hasWinner) {
+                                    // No longer need to change turns if we already have a winner :D
+                                    gameTurn = if (gameTurn == "X") "O" else "X"
+                                }
                             }
                         }
                     ) {
@@ -101,7 +114,7 @@ fun TicTacToeLayout(modifier: Modifier = Modifier){
         )
         Spacer(modifier = Modifier.height(32.dp))
         Text(
-            text = "Turn: $gameTurn",
+            text = getInfoText(gameTurn, hasWinner),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(64.dp))
@@ -110,8 +123,89 @@ fun TicTacToeLayout(modifier: Modifier = Modifier){
                 gameState[i] = ""
             }
             gameTurn = "X"
+            hasWinner = false
         }) {
             Text(text = stringResource(R.string.reset_button))
         }
+    }
+}
+
+fun getInfoText(gameTurn: String, hasWinner: Boolean): String {
+    return if (hasWinner) {
+        "Game over! $gameTurn wins!"
+    } else {
+        "Turn: $gameTurn"
+    }
+}
+
+val horizontalWin_1 = listOf<Boolean>(
+    true, true, true,
+    false, false, false,
+    false, false, false
+)
+val horizontalWin_2 = listOf<Boolean>(
+    false, false, false,
+    true, true, true,
+    false, false, false
+)
+val horizontalWin_3 = listOf<Boolean>(
+    false, false, false,
+    false, false, false,
+    true, true, true
+)
+val verticalWin_1 = listOf<Boolean>(
+    true, false, false,
+    true, false, false,
+    true, false, false
+)
+val verticalWin_2 = listOf<Boolean>(
+    false, true, false,
+    false, true, false,
+    false, true, false
+)
+val verticalWin_3 = listOf<Boolean>(
+    false, false, true,
+    false, false, true,
+    false, false, true
+)
+val transversalWin_1 = listOf<Boolean>(
+    true, false, false,
+    false, true, false,
+    false, false, true
+)
+val transversalWin_2 = listOf<Boolean>(
+    false, false, true,
+    false, true, false,
+    true, false, false
+)
+
+val winPositions = listOf<List<Boolean>>(
+    horizontalWin_1,
+    horizontalWin_2,
+    horizontalWin_3,
+    verticalWin_1,
+    verticalWin_2,
+    verticalWin_3,
+    transversalWin_1,
+    transversalWin_2
+)
+
+fun isWinState(gameState: List<String>, gameTurn: String, winState: List<Boolean>): Boolean {
+    val booleanState = gameState.map { it == gameTurn }
+    // TODO: Fix this. We cannot compare the whole list. We need to compare the True indices of the winState with the
+    // game state, otherwise you can only compute a win if the winner has only played three times.
+    return booleanState == winState
+}
+
+fun hasWinner(gameState: List<String>, gameTurn: String): Boolean {
+    return winPositions.any {
+        isWinState(gameState, gameTurn, it)
+    }
+}
+
+fun getWinPosition(gameState: List<String>, gameTurn: String): List<Boolean>? {
+    val booleanState = gameState.map { it == gameTurn }
+    return winPositions.find {
+        it == booleanState
     }
 }
