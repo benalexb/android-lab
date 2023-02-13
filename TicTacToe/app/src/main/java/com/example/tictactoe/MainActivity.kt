@@ -47,11 +47,14 @@ fun TicTacToeGame() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TicTacToeLayout(modifier: Modifier = Modifier){
+    var gameTurn by remember {
+        mutableStateOf("X")
+    }
     var gameState = remember {
         mutableStateListOf<String>(
-            "X", "", "",
-            "O", "", "",
-            "", "", "X",
+            "", "", "",
+            "", "", "",
+            "", "", "",
         )
     }
 
@@ -78,7 +81,10 @@ fun TicTacToeLayout(modifier: Modifier = Modifier){
                             .fillMaxWidth(),
                         elevation = 8.dp,
                         onClick = {
-                            println("TEST! Card Clicked!")
+                            if (gameState[index] == "") {
+                                gameState[index] = gameTurn
+                                gameTurn = if (gameTurn == "X") "O" else "X"
+                            }
                         }
                     ) {
                         Text(
@@ -93,11 +99,17 @@ fun TicTacToeLayout(modifier: Modifier = Modifier){
                 }
             }
         )
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = "Turn: $gameTurn",
+            fontWeight = FontWeight.Bold
+        )
         Spacer(modifier = Modifier.height(64.dp))
         Button(onClick = {
             for (i in gameState.indices) {
                 gameState[i] = ""
             }
+            gameTurn = "X"
         }) {
             Text(text = stringResource(R.string.reset_button))
         }
